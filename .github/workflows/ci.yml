@@ -30,9 +30,6 @@ jobs:
         run: mvn -B -f backend/pom.xml test -DskipTests
       - name: 安装全部模块
         run: mvn -B -f backend/pom.xml install -DskipTests
-        # # 阶段 3：架构适应度函数（ArchUnit: FF-1~FF-6）
-        # - name: 架构约束检查
-        #   run: mvn -B -f backend/pom.xml verify -pl co-bootstrap -Dtest=ArchitectureTest -DfailIfNoTests=false -Denforcer.skip=true
 
         # 阶段 4：领域层覆盖率门禁（低于阈值直接失败）
       - name: 覆盖率门禁
