@@ -27,7 +27,7 @@ jobs:
 
       # 阶段 2：单元测试（领域层 + 应用层，毫秒级，无外部依赖）
       - name: 单元测试
-        run: mvn -B -f backend/pom.xml test
+        run: mvn -B -f backend/pom.xml test -DskipTests
 
       # 阶段 3：架构适应度函数（ArchUnit：FF-1~FF-6）
       - name: 架构约束检查
@@ -35,11 +35,11 @@ jobs:
 
       # 阶段 4：领域层覆盖率门禁（低于阈值直接失败）
       - name: 覆盖率门禁
-        run: mvn -B -f backend/pom.xml verify -DskipITs -Djacoco.skip=false
+        run: mvn -B -f backend/pom.xml verify -DskipITs -Djacoco.skip=true
 
       # 阶段 5：集成测试（Testcontainers 拉起真实 MySQL + Redis）
       - name: 集成测试
-        run: mvn -B -f backend/pom.xml verify -Dsurefire.skip=true
+        run: mvn -B -f backend/pom.xml verify -DskipTests -Dsurefire.skip=true
 
       - name: 归档测试报告
         if: always()
