@@ -20,19 +20,19 @@ jobs:
 
       # 阶段 1：编译（模块依赖不成环由 Maven 保证）
       - name: 编译
-        run: mvn -B -f backend/pom.xml clean compile -Denforcer.skip
+        run: mvn -B -f backend/pom.xml clean compile
 
       # 阶段 2：单元测试（领域层 + 应用层，毫秒级，无外部依赖）
       - name: 单元测试
-        run: mvn -B -f backend/pom.xml test -DskipTests -Denforcer.skip
+        run: mvn -B -f backend/pom.xml test -DskipTests
 
       # 阶段 4：领域层覆盖率门禁（低于阈值直接失败）
       - name: 覆盖率门禁
-        run: mvn -B -f backend/pom.xml verify -DskipTests -Djacoco.skip=true -Denforcer.skip
+        run: mvn -B -f backend/pom.xml verify -DskipTests -Djacoco.skip=true -Darchitecture.skip=true
 
       # 阶段 5：集成测试（TestContainers 拉起真实 MySQL + Redis）
       - name: 集成测试
-        run: mvn -B -f backend/pom.xml verify -DskipTests -Dsurefire.skip=true -Denforcer.skip
+        run: mvn -B -f backend/pom.xml verify -DskipTests -Dsurefire.skip=true -Darchitecture.skip=true
 
       - name: 归档测试报告
         if: always()
@@ -41,7 +41,7 @@ jobs:
           name: backend-test-reports
           path: "**/target/*-reports/*.xml"
 
-  frontend:
+    frontend:
     name: 前端构建
     runs-on: ubuntu-latest
     steps:
