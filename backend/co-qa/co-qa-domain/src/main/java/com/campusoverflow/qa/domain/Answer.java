@@ -1,95 +1,68 @@
 package com.campusoverflow.qa.domain;
 
-import com.campusoverflow.shared.domain.BusinessRuleException;
-import com.campusoverflow.shared.domain.ConflictException;
-import com.campusoverflow.shared.domain.ForbiddenException;
-import com.campusoverflow.shared.security.Actor;
-import java.time.Instant;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * 回答聚合根。独立于 Question 聚合以降低并发冲突，通过 questionId 引用问题。
- * “是否被采纳”由 Question.acceptedAnswerId 决定（单一事实来源），这里不重复存储。
- */
 public class Answer {
 
-    private Long id;
-    private final long questionId;
-    private final long authorId;
-    private MarkdownBody body;
-    private final int score;
-    private Long endorsedBy;
-    private final Instant createdAt;
-    private Instant updatedAt;
-    private Instant deletedAt;
-    private final long version;
+    private final Long id;
+    private final Long authorUserId;
+    private MarkdownBody markdownBody;
+    private final LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private boolean accepted;
 
-    private Answer(Long id, long questionId, long authorId, MarkdownBody body, int score, Long endorsedBy,
-                   Instant createdAt, Instant updatedAt, Instant deletedAt, long version) {
+    private final List<Vote> votes;
+
+    private Answer(Long id, Long authorUserId, MarkdownBody markdownBody) {
         this.id = id;
-        this.questionId = questionId;
-        this.authorId = authorId;
-        this.body = Objects.requireNonNull(body);
-        this.score = score;
-        this.endorsedBy = endorsedBy;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.deletedAt = deletedAt;
-        this.version = version;
+        this.authorUserId = authorUserId;
+        this.markdownBody = markdownBody;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.accepted = false;
+        this.votes = new ArrayList<>();
     }
 
-    public static Answer submit(Question question, long authorId, MarkdownBody body, Instant now) {
-        // TODO(S2)：实现 Answer.submit——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.submit 尚未实现");
-    }
-
-    public static Answer reconstitute(Long id, long questionId, long authorId, MarkdownBody body, int score,
-                                      Long endorsedBy, Instant createdAt, Instant updatedAt, Instant deletedAt,
-                                      long version) {
-        return new Answer(id, questionId, authorId, body, score, endorsedBy, createdAt, updatedAt, deletedAt, version);
-    }
-
-    public void edit(Actor actor, boolean actorManagesCourse, MarkdownBody newBody, Instant now) {
-        // TODO(S2)：实现 Answer.edit——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.edit 尚未实现");
-    }
-
-    /** 教师认证：课程教师/助教为优质回答打上“教师认证”标记。 */
-    public void endorse(Actor actor, boolean actorManagesCourse) {
-        // TODO(S2)：实现 Answer.endorse——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.endorse 尚未实现");
-    }
-
-    /** 被采纳的回答不能由回答者本人删除（避免“先骗采纳再删除”），课程管理者可删除。 */
-    public void softDelete(Actor actor, boolean actorManagesCourse, boolean accepted, Instant now) {
-        // TODO(S2)：实现 Answer.softDelete——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.softDelete 尚未实现");
-    }
-
-    private void ensureNotDeleted() {
-        // TODO(S2)：实现 Answer.ensureNotDeleted——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.ensureNotDeleted 尚未实现");
-    }
-
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
-
-    public void assignId(long id) {
-        if (this.id != null) {
-            throw new IllegalStateException("ID 已分配");
+    public static Answer create(Long id, Long authorUserId, MarkdownBody markdownBody) {
+        if (authorUserId == null || authorUserId <= 0) {
+            throw new IllegalArgumentException("回答作者ID非法");
         }
-        this.id = id;
+        if (markdownBody == null) {
+            throw new IllegalArgumentException("回答内容不能为空");
+        }
+        return new Answer(id, authorUserId, markdownBody);
     }
 
-    public Long id() { return id; }
-    public long questionId() { return questionId; }
-    public long authorId() { return authorId; }
-    public MarkdownBody body() { return body; }
-    public int score() { return score; }
-    public Long endorsedBy() { return endorsedBy; }
-    public Instant createdAt() { return createdAt; }
-    public Instant updatedAt() { return updatedAt; }
-    public Instant deletedAt() { return deletedAt; }
-    public long version() { return version; }
+    // 业务方法
+    public void editContent(MarkdownBody newBody) {
+        if (newBody == null) {
+            throw new IllegalArgumentException("回答内容不能为空");
+        }
+        this.markdownBody = newBody;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markAsAccepted() {
+        this.accepted = true;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 同一个用户只能保留一次投票
+     */
+    public void addVote(Vote vote) {
+        votes.removeIf(v -> v.getVoterUserId().equals(vote.getVoterUserId()));
+        votes.add(vote);
+    }
+
+    // getter
+    public Long getId() { return id; }
+    public Long getAuthorUserId() { return authorUserId; }
+    public MarkdownBody getMarkdownBody() { return markdownBody; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public boolean isAccepted() { return accepted; }
+    public List<Vote> getVotes() { return List.copyOf(votes); }
 }
