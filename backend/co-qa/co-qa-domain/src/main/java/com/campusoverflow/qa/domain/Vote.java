@@ -1,57 +1,42 @@
 package com.campusoverflow.qa.domain;
 
-import com.campusoverflow.shared.domain.BusinessRuleException;
-import java.time.Instant;
+import java.util.Objects;
 
-/** 投票聚合：同一用户对同一内容仅一票（数据库唯一约束兜底），值为 +1 或 -1；撤销即删除。 */
-public class Vote {
+public final class Vote {
 
-    private Long id;
-    private final long voterId;
-    private final TargetType targetType;
-    private final long targetId;
-    private int value;
-    private Instant updatedAt;
+    private final Long voterUserId;
+    private final boolean isUpVote;
 
-    private Vote(Long id, long voterId, TargetType targetType, long targetId, int value, Instant updatedAt) {
-        this.id = id;
-        this.voterId = voterId;
-        this.targetType = targetType;
-        this.targetId = targetId;
-        this.value = value;
-        this.updatedAt = updatedAt;
+    private Vote(Long voterUserId, boolean isUpVote) {
+        this.voterUserId = voterUserId;
+        this.isUpVote = isUpVote;
     }
 
-    public static Vote cast(long voterId, long targetAuthorId, TargetType targetType, long targetId, int value,
-                            Instant now) {
-        // TODO(S2)：实现 Vote.cast——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Vote.cast 尚未实现");
+    public static Vote create(Long voterUserId, boolean isUpVote) {
+        if (voterUserId == null || voterUserId <= 0) {
+            throw new IllegalArgumentException("投票用户ID非法");
+        }
+        return new Vote(voterUserId, isUpVote);
     }
 
-    public static Vote reconstitute(Long id, long voterId, TargetType targetType, long targetId, int value,
-                                    Instant updatedAt) {
-        return new Vote(id, voterId, targetType, targetId, value, updatedAt);
+    public Long getVoterUserId() {
+        return voterUserId;
     }
 
-    /** 改投，返回原值。 */
-    public int change(int newValue, Instant now) {
-        // TODO(S2)：实现 Vote.change——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Vote.change 尚未实现");
+    public boolean isUpVote() {
+        return isUpVote;
     }
 
-    private static int checkValue(int value) {
-        // TODO(S2)：实现 Vote.checkValue——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Vote.checkValue 尚未实现");
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vote vote = (Vote) o;
+        return isUpVote == vote.isUpVote && Objects.equals(voterUserId, vote.voterUserId);
     }
 
-    public void assignId(long id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        return Objects.hash(voterUserId, isUpVote);
     }
-
-    public Long id() { return id; }
-    public long voterId() { return voterId; }
-    public TargetType targetType() { return targetType; }
-    public long targetId() { return targetId; }
-    public int value() { return value; }
-    public Instant updatedAt() { return updatedAt; }
 }
