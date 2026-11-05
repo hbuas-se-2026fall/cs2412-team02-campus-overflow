@@ -35,3 +35,6 @@
 ![事件风暴全景图](./aggregate-analysis.png)
 ![上下文映射图](./ContextMap.png)
 >领域术语说明:[glossary-v1.0.md](./glossary-v1.0.md)
+
+## 现场白板照片
+![事件风暴全景图](./aggregate-analysis.png)
