@@ -1,47 +1,52 @@
 package com.campusoverflow.qa.domain;
 
-import com.campusoverflow.shared.domain.UserId;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Set;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class VoteAndCommentTest {
 
+    // ---------- Vote 相关测试（成员2负责）----------
     @Test
-    void upVoteAnswer() {
-        var qTitle = new Title("测试对回答进行点赞投票功能是否正常");
-        var qContent = new Content("投票场景测试");
-        var qAuthor = new UserId("u001");
-        var question = Question.create(qTitle, qContent, qAuthor);
-
-        var aContent = new Content("回答内容，准备接收点赞");
-        var aAuthor = new UserId("u002");
-        var answer = Answer.create(aContent, aAuthor);
-        question.addAnswer(answer);
-
-        var voter = new UserId("u005");
-        var upVote = new Vote(voter, true);
-        answer.vote(upVote);
-
-        assertEquals(1, answer.getVotes().size());
-        assertTrue(answer.getVotes().iterator().next().isUp());
+    void shouldCreateUpVote() {
+        Vote vote = Vote.up(1L);
+        assertThat(vote.isUpVote()).isTrue();
+        assertThat(vote.getVoterUserId()).isEqualTo(1L);
     }
 
     @Test
-    void sameUserOnlyOneVote() {
-        var qTitle = new Title("同一个用户只能保留一条投票记录校验");
-        var qContent = new Content("重复投票覆盖");
-        var qAuthor = new UserId("u001");
-        var question = Question.create(qTitle, qContent, qAuthor);
-
-        var aContent = new Content("测试回答");
-        var aAuthor = new UserId("u002");
-        var answer = Answer.create(aContent, aAuthor);
-        question.addAnswer(answer);
-
-        var voter = new UserId("u006");
-        answer.vote(new Vote(voter, true));
-        answer.vote(new Vote(voter, true));
-
-        assertEquals(1, answer.getVotes().size());
+    void shouldCreateDownVote() {
+        Vote vote = Vote.down(2L);
+        assertThat(vote.isUpVote()).isFalse();
     }
+
+    @Test
+    void sameVoterReplaceVoteOnAnswer() {
+        Long voterId = 3L;
+        Vote up = Vote.up(voterId);
+        Vote down = Vote.down(voterId);
+
+        Title title = new Title("测试投票替换的问题标题");
+        MarkdownBody content = MarkdownBody.ofQuestion("测试内容足够长满足校验");
+        Question q = Question.create(1L, 1L, title, content, Set.of());
+        Answer answer = q.addAnswer(1001L, 2L, MarkdownBody.ofAnswer("回答内容"));
+
+        answer.addVote(up);
+        answer.addVote(down);
+
+        assertThat(answer.getVotes()).hasSize(1);
+        assertThat(answer.getVotes().iterator().next().isUpVote()).isFalse();
+    }
+
+    @Test
+    void shouldRejectInvalidVoterId() {
+        assertThatThrownBy(() -> Vote.create(null, true))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> Vote.create(-1L, true))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    // ---------- Comment 相关测试（其他队友负责，占位）----------
+    // TODO：Comment领域代码由对应负责人实现后补充测试
 }

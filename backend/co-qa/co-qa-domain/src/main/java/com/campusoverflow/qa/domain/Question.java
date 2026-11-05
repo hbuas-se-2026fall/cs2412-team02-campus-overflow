@@ -1,6 +1,5 @@
 package com.campusoverflow.qa.domain;
 
-import com.campusoverflow.shared.domain.Guard;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,7 +15,6 @@ public class Question {
     private Set<TagName> tags;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     private final List<Answer> answers;
     private final List<Vote> votes;
 
@@ -33,28 +31,41 @@ public class Question {
     }
 
     public static Question create(Long id, Long authorUserId, Title title, MarkdownBody markdownBody, Set<TagName> tags) {
-        Guard.notNull(authorUserId, "提问用户ID不能为空");
-        Guard.isTrue(authorUserId > 0, "提问用户ID非法");
-        Guard.notNull(title, "问题标题不能为空");
-        Guard.notNull(markdownBody, "问题内容不能为空");
-        Guard.notNull(tags, "标签集合不能为null");
+        if (authorUserId == null || authorUserId <= 0) {
+            throw new IllegalArgumentException("提问用户ID非法");
+        }
+        if (title == null) {
+            throw new IllegalArgumentException("问题标题不能为空");
+        }
+        if (markdownBody == null) {
+            throw new IllegalArgumentException("问题内容不能为空");
+        }
+        if (tags == null) {
+            throw new IllegalArgumentException("标签集合不能为null");
+        }
         return new Question(id, authorUserId, title, markdownBody, tags);
     }
 
     public void changeTitle(Title newTitle) {
-        Guard.notNull(newTitle, "标题不能为空");
+        if (newTitle == null) {
+            throw new IllegalArgumentException("标题不能为空");
+        }
         this.title = newTitle;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void editBody(MarkdownBody newBody) {
-        Guard.notNull(newBody, "问题内容不能为空");
+        if (newBody == null) {
+            throw new IllegalArgumentException("问题内容不能为空");
+        }
         this.markdownBody = newBody;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void addTag(TagName tagName) {
-        Guard.notNull(tagName, "标签不能为null");
+        if (tagName == null) {
+            throw new IllegalArgumentException("标签不能为null");
+        }
         this.tags.add(tagName);
         this.updatedAt = LocalDateTime.now();
     }
@@ -67,8 +78,9 @@ public class Question {
     }
 
     public void voteAnswer(Long answerId, Vote vote) {
-        Guard.notNull(answerId, "回答ID不能为空");
-        Guard.notNull(vote, "投票对象不能为空");
+        if (answerId == null || vote == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
         Answer target = answers.stream()
                 .filter(a -> a.getId().equals(answerId))
                 .findFirst()
@@ -78,7 +90,9 @@ public class Question {
     }
 
     public void voteQuestion(Vote vote) {
-        Guard.notNull(vote, "投票对象不能为空");
+        if (vote == null) {
+            throw new IllegalArgumentException("投票对象不能为空");
+        }
         votes.removeIf(v -> v.getVoterUserId().equals(vote.getVoterUserId()));
         votes.add(vote);
         this.updatedAt = LocalDateTime.now();

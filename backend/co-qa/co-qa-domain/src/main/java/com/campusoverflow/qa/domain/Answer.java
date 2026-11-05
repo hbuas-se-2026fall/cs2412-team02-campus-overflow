@@ -12,7 +12,6 @@ public class Answer {
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean accepted;
-
     private final List<Vote> votes;
 
     private Answer(Long id, Long authorUserId, MarkdownBody markdownBody) {
@@ -56,11 +55,11 @@ public class Answer {
     public int getUpVoteCount() {
         return (int) votes.stream().filter(Vote::isUpVote).count();
     }
+
     public int getDownVoteCount() {
         return (int) votes.stream().filter(v -> !v.isUpVote()).count();
     }
 
-    // getter
     public Long getId() { return id; }
     public Long getAuthorUserId() { return authorUserId; }
     public MarkdownBody getMarkdownBody() { return markdownBody; }

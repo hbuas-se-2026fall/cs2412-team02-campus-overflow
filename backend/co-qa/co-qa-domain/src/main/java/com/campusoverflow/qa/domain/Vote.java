@@ -21,6 +21,7 @@ public final class Vote {
     public static Vote up(Long voterUserId) {
         return create(voterUserId, true);
     }
+
     public static Vote down(Long voterUserId) {
         return create(voterUserId, false);
     }
@@ -43,6 +44,6 @@ public final class Vote {
 
     @Override
     public int hashCode() {
-        return Objects.hash(voterUserId, vote.voterUserId);
+        return Objects.hash(voterUserId, isUpVote);
     }
 }

@@ -9,10 +9,10 @@ class QuestionTest {
 
     @Test
     void shouldCreateQuestionSuccess() {
-        Title title = Title.of("这是一个用于测试的正常问题标题");
+        Title title = new Title("这是一个用于测试的正常问题标题");
         MarkdownBody content = MarkdownBody.ofQuestion("问题内容描述，用来演示创建问题");
         Long authorUserId = 1L;
-        Set<TagName> tags = Set.of(TagName.of("java"), TagName.of("ddd"));
+        Set<TagName> tags = Set.of(new TagName("java"), new TagName("ddd"));
 
         Question question = Question.create(1L, authorUserId, title, content, tags);
 
@@ -20,12 +20,12 @@ class QuestionTest {
         assertThat(question.getTitle()).isEqualTo(title);
         assertThat(question.getMarkdownBody()).isEqualTo(content);
         assertThat(question.getAuthorUserId()).isEqualTo(authorUserId);
-        assertThat(question.getTags()).containsExactlyInAnyOrder(TagName.of("java"), TagName.of("ddd"));
+        assertThat(question.getTags()).containsExactlyInAnyOrder(new TagName("java"), new TagName("ddd"));
     }
 
     @Test
     void shouldAddAnswerInsideQuestion() {
-        Title title = Title.of("这是一个用来添加回答的测试问题标题");
+        Title title = new Title("这是一个用来添加回答的测试问题标题");
         MarkdownBody content = MarkdownBody.ofQuestion("看看能不能正常新增回答实体");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
@@ -40,7 +40,7 @@ class QuestionTest {
 
     @Test
     void sameUserReplaceOldVoteOnAnswer() {
-        Title title = Title.of("测试同一个用户重复投票会替换旧投票");
+        Title title = new Title("测试同一个用户重复投票会替换旧投票");
         MarkdownBody content = MarkdownBody.ofQuestion("投票替换逻辑校验");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
@@ -63,7 +63,7 @@ class QuestionTest {
 
     @Test
     void shouldVoteAnswerThroughAggregateRoot() {
-        Title title = Title.of("通过聚合根Question给Answer执行投票操作");
+        Title title = new Title("通过聚合根Question给Answer执行投票操作");
         MarkdownBody content = MarkdownBody.ofQuestion("聚合根转发投票逻辑");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
@@ -82,7 +82,7 @@ class QuestionTest {
 
     @Test
     void shouldVoteQuestionItself() {
-        Title title = Title.of("测试给问题本身投票");
+        Title title = new Title("测试给问题本身投票");
         MarkdownBody content = MarkdownBody.ofQuestion("问题投票逻辑");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
@@ -97,8 +97,8 @@ class QuestionTest {
 
     @Test
     void shouldFailWhenAuthorIdInvalid() {
-        Title title = Title.of("标题");
-        MarkdownBody content = MarkdownBody.ofQuestion("合法内容");
+        Title title = new Title("标题足够长不会报错");
+        MarkdownBody content = MarkdownBody.ofQuestion("合法内容足够长");
         Set<TagName> tags = Set.of();
         assertThatThrownBy(() -> Question.create(1L, -1L, title, content, tags))
                 .isInstanceOf(IllegalArgumentException.class);
