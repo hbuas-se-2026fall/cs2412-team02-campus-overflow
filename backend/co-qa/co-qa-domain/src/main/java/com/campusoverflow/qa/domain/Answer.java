@@ -35,7 +35,6 @@ public class Answer {
         return new Answer(id, authorUserId, markdownBody);
     }
 
-    // 业务方法
     public void editContent(MarkdownBody newBody) {
         if (newBody == null) {
             throw new IllegalArgumentException("回答内容不能为空");
@@ -49,12 +48,16 @@ public class Answer {
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * 同一个用户只能保留一次投票
-     */
     public void addVote(Vote vote) {
         votes.removeIf(v -> v.getVoterUserId().equals(vote.getVoterUserId()));
         votes.add(vote);
+    }
+
+    public int getUpVoteCount() {
+        return (int) votes.stream().filter(Vote::isUpVote).count();
+    }
+    public int getDownVoteCount() {
+        return (int) votes.stream().filter(v -> !v.isUpVote()).count();
     }
 
     // getter

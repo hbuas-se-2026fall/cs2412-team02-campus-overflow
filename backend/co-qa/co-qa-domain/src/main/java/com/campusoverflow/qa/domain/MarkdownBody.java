@@ -6,12 +6,16 @@ import com.campusoverflow.shared.domain.Guard;
 public record MarkdownBody(String value) {
 
     public static MarkdownBody ofQuestion(String raw) {
-        // TODO(S2)：实现 MarkdownBody.ofQuestion——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：MarkdownBody.ofQuestion 尚未实现");
+        Guard.notBlank(raw, "问题正文不能为空");
+        Guard.minLength(raw, 10, "问题正文至少10个字符");
+        Guard.maxLength(raw, 2000, "问题正文不能超过2000字符");
+        return new MarkdownBody(raw);
     }
 
     public static MarkdownBody ofAnswer(String raw) {
-        // TODO(S2)：实现 MarkdownBody.ofAnswer——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：MarkdownBody.ofAnswer 尚未实现");
+        Guard.notBlank(raw, "回答正文不能为空");
+        Guard.minLength(raw, 5, "回答正文至少5个字符");
+        Guard.maxLength(raw, 3000, "回答正文不能超过3000字符");
+        return new MarkdownBody(raw);
     }
 }

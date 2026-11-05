@@ -2,55 +2,105 @@ package com.campusoverflow.qa.domain;
 
 import org.junit.jupiter.api.Test;
 import java.util.Set;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class QuestionTest {
 
     @Test
     void shouldCreateQuestionSuccess() {
-        Title title = new Title("DDD怎么写聚合？");
-        MarkdownBody body = new MarkdownBody("请教充血模型写法");
-        TagName tag1 = new TagName("DDD");
-        TagName tag2 = new TagName("SpringBoot");
+        Title title = Title.of("这是一个用于测试的正常问题标题");
+        MarkdownBody content = MarkdownBody.ofQuestion("问题内容描述，用来演示创建问题");
+        Long authorUserId = 1L;
+        Set<TagName> tags = Set.of(TagName.of("java"), TagName.of("ddd"));
 
-        Question q = Question.create(1L, 1001L, title, body, Set.of(tag1, tag2));
-        assertEquals(1L, q.getId());
-        assertEquals("DDD怎么写聚合？", q.getTitle().value());
-        assertEquals(2, q.getTags().size());
-        assertTrue(q.getAnswers().isEmpty());
+        Question question = Question.create(1L, authorUserId, title, content, tags);
+
+        assertThat(question).isNotNull();
+        assertThat(question.getTitle()).isEqualTo(title);
+        assertThat(question.getMarkdownBody()).isEqualTo(content);
+        assertThat(question.getAuthorUserId()).isEqualTo(authorUserId);
+        assertThat(question.getTags()).containsExactlyInAnyOrder(TagName.of("java"), TagName.of("ddd"));
     }
 
     @Test
-    void shouldAddAnswerInsideQuestionAggregate() {
-        Question q = Question.create(1L,1001L, new Title("标题"), new MarkdownBody("内容"), Set.of());
-        Answer ans = q.addAnswer(10L, 2002L, new MarkdownBody("回答内容"));
-        assertNotNull(ans);
-        assertEquals(1, q.getAnswers().size());
+    void shouldAddAnswerInsideQuestion() {
+        Title title = Title.of("这是一个用来添加回答的测试问题标题");
+        MarkdownBody content = MarkdownBody.ofQuestion("看看能不能正常新增回答实体");
+        Long authorUserId = 1L;
+        Set<TagName> tags = Set.of();
+        Question question = Question.create(1L, authorUserId, title, content, tags);
+
+        MarkdownBody answerContent = MarkdownBody.ofAnswer("这是一条测试回答的文本内容");
+        Long answerAuthorId = 2L;
+        Answer answer = question.addAnswer(1001L, answerAuthorId, answerContent);
+
+        assertThat(question.getAnswers()).contains(answer);
+    }
+
+    @Test
+    void sameUserReplaceOldVoteOnAnswer() {
+        Title title = Title.of("测试同一个用户重复投票会替换旧投票");
+        MarkdownBody content = MarkdownBody.ofQuestion("投票替换逻辑校验");
+        Long authorUserId = 1L;
+        Set<TagName> tags = Set.of();
+        Question question = Question.create(1L, authorUserId, title, content, tags);
+
+        MarkdownBody answerContent = MarkdownBody.ofAnswer("回答内容");
+        Long answerAuthorId = 2L;
+        Answer answer = question.addAnswer(1001L, answerAuthorId, answerContent);
+
+        Long voterId = 3L;
+        Vote voteUp = Vote.create(voterId, true);
+        Vote voteDown = Vote.create(voterId, false);
+
+        answer.addVote(voteUp);
+        answer.addVote(voteDown);
+
+        assertThat(answer.getVotes()).hasSize(1);
+        assertThat(answer.getVotes().iterator().next().isUpVote()).isFalse();
     }
 
     @Test
     void shouldVoteAnswerThroughAggregateRoot() {
-        Question q = Question.create(1L,1001L, new Title("标题"), new MarkdownBody("内容"), Set.of());
-        Answer ans = q.addAnswer(10L, 2002L, new MarkdownBody("回答"));
-        Vote upVote = Vote.create(3003L, true);
+        Title title = Title.of("通过聚合根Question给Answer执行投票操作");
+        MarkdownBody content = MarkdownBody.ofQuestion("聚合根转发投票逻辑");
+        Long authorUserId = 1L;
+        Set<TagName> tags = Set.of();
+        Question question = Question.create(1L, authorUserId, title, content, tags);
 
-        q.voteAnswer(10L, upVote);
+        MarkdownBody answerContent = MarkdownBody.ofAnswer("待投票的回答内容");
+        Long answerAuthorId = 2L;
+        Answer answer = question.addAnswer(1001L, answerAuthorId, answerContent);
 
-        assertEquals(1, ans.getVotes().size());
-        assertTrue(ans.getVotes().get(0).isUpVote());
+        Long voterId = 4L;
+        Vote vote = Vote.create(voterId, true);
+        question.voteAnswer(1001L, vote);
+
+        assertThat(answer.getVotes()).contains(vote);
     }
 
     @Test
-    void sameUserReplaceOldVote() {
-        Question q = Question.create(1L,1001L, new Title("标题"), new MarkdownBody("内容"), Set.of());
-        Answer ans = q.addAnswer(10L,2002L, new MarkdownBody("回答"));
-        Vote up = Vote.create(3003L, true);
-        Vote down = Vote.create(3003L, false);
+    void shouldVoteQuestionItself() {
+        Title title = Title.of("测试给问题本身投票");
+        MarkdownBody content = MarkdownBody.ofQuestion("问题投票逻辑");
+        Long authorUserId = 1L;
+        Set<TagName> tags = Set.of();
+        Question question = Question.create(1L, authorUserId, title, content, tags);
 
-        q.voteAnswer(10L, up);
-        q.voteAnswer(10L, down);
+        Long voterId = 5L;
+        Vote vote = Vote.create(voterId, true);
+        question.voteQuestion(vote);
 
-        assertEquals(1, ans.getVotes().size());
-        assertFalse(ans.getVotes().get(0).isUpVote());
+        assertThat(question.getVotes()).hasSize(1);
+    }
+
+    @Test
+    void shouldFailWhenAuthorIdInvalid() {
+        Title title = Title.of("标题");
+        MarkdownBody content = MarkdownBody.ofQuestion("合法内容");
+        Set<TagName> tags = Set.of();
+        assertThatThrownBy(() -> Question.create(1L, -1L, title, content, tags))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -1,29 +1,47 @@
 package com.campusoverflow.qa.domain;
 
+import com.campusoverflow.shared.domain.UserId;
 import org.junit.jupiter.api.Test;
-import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VoteAndCommentTest {
+
     @Test
     void upVoteAnswer() {
-        Question q = Question.create(1L,1001L, new Title("标题"), new MarkdownBody("内容"), Set.of());
-        Answer ans = q.addAnswer(10L,2002L, new MarkdownBody("回答"));
-        Vote upVote = Vote.create(3003L, true);
-        q.voteAnswer(10L, upVote);
-        assertEquals(1, ans.getVotes().size());
-        assertTrue(ans.getVotes().get(0).isUpVote());
+        var qTitle = new Title("测试对回答进行点赞投票功能是否正常");
+        var qContent = new Content("投票场景测试");
+        var qAuthor = new UserId("u001");
+        var question = Question.create(qTitle, qContent, qAuthor);
+
+        var aContent = new Content("回答内容，准备接收点赞");
+        var aAuthor = new UserId("u002");
+        var answer = Answer.create(aContent, aAuthor);
+        question.addAnswer(answer);
+
+        var voter = new UserId("u005");
+        var upVote = new Vote(voter, true);
+        answer.vote(upVote);
+
+        assertEquals(1, answer.getVotes().size());
+        assertTrue(answer.getVotes().iterator().next().isUp());
     }
 
     @Test
     void sameUserOnlyOneVote() {
-        Question q = Question.create(1L,1001L, new Title("标题"), new MarkdownBody("内容"), Set.of());
-        Answer ans = q.addAnswer(10L,2002L, new MarkdownBody("回答"));
-        Vote upVote = Vote.create(3003L, true);
-        Vote downVote = Vote.create(3003L, false);
-        q.voteAnswer(10L, upVote);
-        q.voteAnswer(10L, downVote);
-        assertEquals(1, ans.getVotes().size());
-        assertFalse(ans.getVotes().get(0).isUpVote());
+        var qTitle = new Title("同一个用户只能保留一条投票记录校验");
+        var qContent = new Content("重复投票覆盖");
+        var qAuthor = new UserId("u001");
+        var question = Question.create(qTitle, qContent, qAuthor);
+
+        var aContent = new Content("测试回答");
+        var aAuthor = new UserId("u002");
+        var answer = Answer.create(aContent, aAuthor);
+        question.addAnswer(answer);
+
+        var voter = new UserId("u006");
+        answer.vote(new Vote(voter, true));
+        answer.vote(new Vote(voter, true));
+
+        assertEquals(1, answer.getVotes().size());
     }
 }

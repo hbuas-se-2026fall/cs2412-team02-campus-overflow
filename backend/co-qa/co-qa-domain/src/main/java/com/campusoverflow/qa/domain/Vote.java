@@ -3,7 +3,6 @@ package com.campusoverflow.qa.domain;
 import java.util.Objects;
 
 public final class Vote {
-
     private final Long voterUserId;
     private final boolean isUpVote;
 
@@ -17,6 +16,13 @@ public final class Vote {
             throw new IllegalArgumentException("投票用户ID非法");
         }
         return new Vote(voterUserId, isUpVote);
+    }
+
+    public static Vote up(Long voterUserId) {
+        return create(voterUserId, true);
+    }
+    public static Vote down(Long voterUserId) {
+        return create(voterUserId, false);
     }
 
     public Long getVoterUserId() {
@@ -37,6 +43,6 @@ public final class Vote {
 
     @Override
     public int hashCode() {
-        return Objects.hash(voterUserId, isUpVote);
+        return Objects.hash(voterUserId, vote.voterUserId);
     }
 }
