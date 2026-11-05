@@ -8,7 +8,7 @@
 ## 团队分工
 - 汤婉莹：主持人、时间管控、撰写本次实验纪要、汇总组员产出
 - 解雨暄：识别聚合，产出 aggregate-list.md、事件风暴图
-- 张轩：待提交产出，后续补充合并
+- 张轩：领域术语说明，上下文映射图
 
 ## 时间分配
 1. 开场介绍事件风暴规则：10min
@@ -28,7 +28,13 @@
 1. aggregate-analysis（事件风暴白板全景图）
 2. aggregate-list.md（聚合识别清单，解雨暄）
 3. lab3-minutes.md（本次纪要，汤婉莹）
-4. 张轩产出文件：待补充
+4. glossary-v1.0.md（领域术语说明，张轩）
+5. ContextMap（上下文映射图，张轩）
+
+## 现场白板照片
+![事件风暴全景图](./aggregate-analysis.png)
+![上下文映射图](./ContextMap.png)
+>领域术语说明:[glossary-v1.0.md](./glossary-v1.0.md)
 
 ## 现场白板照片
 ![事件风暴全景图](./aggregate-analysis.png)
