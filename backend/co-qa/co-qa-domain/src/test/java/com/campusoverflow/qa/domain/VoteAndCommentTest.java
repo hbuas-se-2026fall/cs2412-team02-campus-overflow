@@ -27,10 +27,10 @@ class VoteAndCommentTest {
         Vote up = Vote.up(voterId);
         Vote down = Vote.down(voterId);
 
-        Title title = new Title("测试投票替换的问题标题");
-        MarkdownBody content = MarkdownBody.ofQuestion("测试内容足够长满足校验");
+        Title title = new Title("测试投票替换的问题标题长度足够满足要求");
+        MarkdownBody content = MarkdownBody.ofQuestion("测试内容足够长满足校验规则要求");
         Question q = Question.create(1L, 1L, title, content, Set.of());
-        Answer answer = q.addAnswer(1001L, 2L, MarkdownBody.ofAnswer("回答内容"));
+        Answer answer = q.addAnswer(1001L, 2L, MarkdownBody.ofAnswer("回答内容长度足够满足校验规则"));
 
         answer.addVote(up);
         answer.addVote(down);

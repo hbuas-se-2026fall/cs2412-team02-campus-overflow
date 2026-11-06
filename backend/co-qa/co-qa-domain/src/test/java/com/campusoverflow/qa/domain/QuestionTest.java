@@ -9,8 +9,8 @@ class QuestionTest {
 
     @Test
     void shouldCreateQuestionSuccess() {
-        Title title = new Title("这是一个用于测试的正常问题标题");
-        MarkdownBody content = MarkdownBody.ofQuestion("问题内容描述，用来演示创建问题");
+        Title title = new Title("这是一个用于测试的正常问题标题长度足够");
+        MarkdownBody content = MarkdownBody.ofQuestion("问题内容描述，用来演示创建问题，长度满足最低要求");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of(new TagName("java"), new TagName("ddd"));
 
@@ -25,13 +25,13 @@ class QuestionTest {
 
     @Test
     void shouldAddAnswerInsideQuestion() {
-        Title title = new Title("这是一个用来添加回答的测试问题标题");
-        MarkdownBody content = MarkdownBody.ofQuestion("看看能不能正常新增回答实体");
+        Title title = new Title("这是一个用来添加回答的测试问题标题长度足够");
+        MarkdownBody content = MarkdownBody.ofQuestion("看看能不能正常新增回答实体，内容长度满足要求");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
         Question question = Question.create(1L, authorUserId, title, content, tags);
 
-        MarkdownBody answerContent = MarkdownBody.ofAnswer("这是一条测试回答的文本内容");
+        MarkdownBody answerContent = MarkdownBody.ofAnswer("这是一条测试回答的文本内容，长度足够");
         Long answerAuthorId = 2L;
         Answer answer = question.addAnswer(1001L, answerAuthorId, answerContent);
 
@@ -40,13 +40,13 @@ class QuestionTest {
 
     @Test
     void sameUserReplaceOldVoteOnAnswer() {
-        Title title = new Title("测试同一个用户重复投票会替换旧投票");
-        MarkdownBody content = MarkdownBody.ofQuestion("投票替换逻辑校验");
+        Title title = new Title("测试同一个用户重复投票会替换旧投票标题足够长");
+        MarkdownBody content = MarkdownBody.ofQuestion("投票替换逻辑校验，内容长度满足最低要求");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
         Question question = Question.create(1L, authorUserId, title, content, tags);
 
-        MarkdownBody answerContent = MarkdownBody.ofAnswer("回答内容");
+        MarkdownBody answerContent = MarkdownBody.ofAnswer("回答内容长度足够满足校验规则");
         Long answerAuthorId = 2L;
         Answer answer = question.addAnswer(1001L, answerAuthorId, answerContent);
 
@@ -63,13 +63,13 @@ class QuestionTest {
 
     @Test
     void shouldVoteAnswerThroughAggregateRoot() {
-        Title title = new Title("通过聚合根Question给Answer执行投票操作");
-        MarkdownBody content = MarkdownBody.ofQuestion("聚合根转发投票逻辑");
+        Title title = new Title("通过聚合根Question给Answer执行投票操作标题足够长");
+        MarkdownBody content = MarkdownBody.ofQuestion("聚合根转发投票逻辑，内容长度满足要求");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
         Question question = Question.create(1L, authorUserId, title, content, tags);
 
-        MarkdownBody answerContent = MarkdownBody.ofAnswer("待投票的回答内容");
+        MarkdownBody answerContent = MarkdownBody.ofAnswer("待投票的回答内容长度足够满足校验");
         Long answerAuthorId = 2L;
         Answer answer = question.addAnswer(1001L, answerAuthorId, answerContent);
 
@@ -82,8 +82,8 @@ class QuestionTest {
 
     @Test
     void shouldVoteQuestionItself() {
-        Title title = new Title("测试给问题本身投票");
-        MarkdownBody content = MarkdownBody.ofQuestion("问题投票逻辑");
+        Title title = new Title("测试给问题本身投票标题长度足够满足要求");
+        MarkdownBody content = MarkdownBody.ofQuestion("问题投票逻辑，内容长度满足最低校验要求");
         Long authorUserId = 1L;
         Set<TagName> tags = Set.of();
         Question question = Question.create(1L, authorUserId, title, content, tags);
@@ -97,8 +97,8 @@ class QuestionTest {
 
     @Test
     void shouldFailWhenAuthorIdInvalid() {
-        Title title = new Title("标题足够长不会报错");
-        MarkdownBody content = MarkdownBody.ofQuestion("合法内容足够长");
+        Title title = new Title("标题足够长不会触发长度校验报错");
+        MarkdownBody content = MarkdownBody.ofQuestion("合法内容足够长满足最低字符数要求");
         Set<TagName> tags = Set.of();
         assertThatThrownBy(() -> Question.create(1L, -1L, title, content, tags))
                 .isInstanceOf(IllegalArgumentException.class);
