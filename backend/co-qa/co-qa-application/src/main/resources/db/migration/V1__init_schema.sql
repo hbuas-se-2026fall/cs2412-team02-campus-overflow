@@ -1,0 +1,28 @@
+CREATE TABLE question (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    creator_id VARCHAR(64) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE answer (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    question_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    creator_id VARCHAR(64) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (question_id) REFERENCES question(id)
+);
+
+CREATE TABLE vote (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    target_type VARCHAR(16) NOT NULL,
+    target_id BIGINT NOT NULL,
+    voter_id VARCHAR(64) NOT NULL,
+    vote_type VARCHAR(16) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_vote_target_voter (target_type,target_id,voter_id)
+);
