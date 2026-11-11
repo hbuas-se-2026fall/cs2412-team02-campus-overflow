@@ -176,6 +176,18 @@
                 <artifactId>owasp-java-html-sanitizer</artifactId>
                 <version>${owasp-sanitizer.version}</version>
             </dependency>
+            <!-- 新增：lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.30</version>
+            </dependency>
+            <!-- 新增：logstash json编码器 -->
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>7.4</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
