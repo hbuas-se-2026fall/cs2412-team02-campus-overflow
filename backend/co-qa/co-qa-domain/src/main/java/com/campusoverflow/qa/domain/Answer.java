@@ -1,70 +1,36 @@
 package com.campusoverflow.qa.domain;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Answer {
+    private Long id;
+    private Long questionId;
+    private Long authorId;
+    private String content;
 
-    private final Long id;
-    private final Long authorUserId;
-    private MarkdownBody markdownBody;
-    private final LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private boolean accepted;
-    private final List<Vote> votes;
+    private Answer(Long questionId, Long authorId, String content) {
+        this.questionId = questionId;
+        this.authorId = authorId;
+        this.content = content;
+    }
 
-    private Answer(Long id, Long authorUserId, MarkdownBody markdownBody) {
+    public static Answer create(Long questionId, Long authorId, String content) {
+        return new Answer(questionId, authorId, content);
+    }
+
+    public Long id() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
         this.id = id;
-        this.authorUserId = authorUserId;
-        this.markdownBody = markdownBody;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.accepted = false;
-        this.votes = new ArrayList<>();
     }
 
-    public static Answer create(Long id, Long authorUserId, MarkdownBody markdownBody) {
-        if (authorUserId == null || authorUserId <= 0) {
-            throw new IllegalArgumentException("回答作者ID非法");
-        }
-        if (markdownBody == null) {
-            throw new IllegalArgumentException("回答内容不能为空");
-        }
-        return new Answer(id, authorUserId, markdownBody);
+    public Long getQuestionId() {
+        return questionId;
     }
-
-    public void editContent(MarkdownBody newBody) {
-        if (newBody == null) {
-            throw new IllegalArgumentException("回答内容不能为空");
-        }
-        this.markdownBody = newBody;
-        this.updatedAt = LocalDateTime.now();
+    public Long getAuthorId() {
+        return authorId;
     }
-
-    public void markAsAccepted() {
-        this.accepted = true;
-        this.updatedAt = LocalDateTime.now();
+    public String getContent() {
+        return content;
     }
-
-    public void addVote(Vote vote) {
-        votes.removeIf(v -> v.getVoterUserId().equals(vote.getVoterUserId()));
-        votes.add(vote);
-    }
-
-    public int getUpVoteCount() {
-        return (int) votes.stream().filter(Vote::isUpVote).count();
-    }
-
-    public int getDownVoteCount() {
-        return (int) votes.stream().filter(v -> !v.isUpVote()).count();
-    }
-
-    public Long getId() { return id; }
-    public Long getAuthorUserId() { return authorUserId; }
-    public MarkdownBody getMarkdownBody() { return markdownBody; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public boolean isAccepted() { return accepted; }
-    public List<Vote> getVotes() { return List.copyOf(votes); }
 }
