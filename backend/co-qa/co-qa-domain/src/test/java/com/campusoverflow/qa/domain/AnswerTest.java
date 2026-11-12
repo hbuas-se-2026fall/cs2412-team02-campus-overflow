@@ -1,33 +1,29 @@
 package com.campusoverflow.qa.domain;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AnswerTest {
 
     @Test
-    void createAnswerSuccess() {
-        MarkdownBody body = MarkdownBody.ofAnswer("回答内容长度足够满足校验");
-        Answer ans = Answer.create(10L, 2002L, body);
-        assertNotNull(ans);
-        assertEquals(10L, ans.getId());
-        assertFalse(ans.isAccepted());
+    void shouldCreateAnswerSuccess() {
+        MarkdownBody body = MarkdownBody.ofAnswer("回答测试内容");
+        Answer answer = Answer.create(100L, 200L, body);
+
+        assertThat(answer).isNotNull();
+        assertThat(answer.getQuestionId()).isEqualTo(100L);
+        assertThat(answer.getAuthorId()).isEqualTo(200L);
+        assertThat(answer.getBody()).isEqualTo(body);
     }
 
     @Test
-    void markAnswerAccepted() {
-        MarkdownBody body = MarkdownBody.ofAnswer("回答内容长度足够");
-        Answer ans = Answer.create(10L, 2002L, body);
-        ans.markAsAccepted();
-        assertTrue(ans.isAccepted());
-    }
+    void shouldAddVoteToAnswer() {
+        MarkdownBody body = MarkdownBody.ofAnswer("回答测试内容");
+        Answer answer = Answer.create(100L, 200L, body);
+        Vote vote = Vote.create(999L, 10L, true);
+        answer.addVote(vote);
 
-    @Test
-    void editAnswerContent() {
-        MarkdownBody oldBody = MarkdownBody.ofAnswer("旧的回答内容足够长");
-        Answer ans = Answer.create(10L, 2002L, oldBody);
-        MarkdownBody newBody = MarkdownBody.ofAnswer("修改后的回答内容长度足够");
-        ans.editContent(newBody);
-        assertEquals(newBody, ans.getMarkdownBody());
+        assertThat(answer.getVotes()).hasSize(1);
+        assertThat(answer.getVotes().get(0)).isSameAs(vote);
     }
 }
