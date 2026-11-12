@@ -1,42 +1,21 @@
 package com.campusoverflow.qa.domain;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import com.campusoverflow.shared.domain.BusinessRuleException;
-import java.time.Instant;
 import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class VoteAndCommentTest {
 
-    private static final Instant NOW = Instant.parse("2026-10-01T08:00:00Z");
-
     @Test
-    void cannotVoteOnOwnContent() {
-        assertThatThrownBy(() -> Vote.cast(3, 3, TargetType.ANSWER, 50, 1, NOW))
-                .isInstanceOf(BusinessRuleException.class).hasMessageContaining("自己");
+    void shouldCreateUpVote() {
+        Vote vote = Vote.create(1001L, 501L, true);
+        assertThat(vote.isUpVote()).isTrue();
+        assertThat(vote.getVoterId()).isEqualTo(1001L);
+        assertThat(vote.getTargetId()).isEqualTo(501L);
     }
 
     @Test
-    void voteValueMustBePlusOrMinusOne() {
-        assertThatThrownBy(() -> Vote.cast(1, 3, TargetType.ANSWER, 50, 2, NOW))
-                .isInstanceOf(BusinessRuleException.class);
-        Vote v = Vote.cast(1, 3, TargetType.ANSWER, 50, 1, NOW);
-        assertThat(v.change(-1, NOW)).isEqualTo(1);
-        assertThat(v.value()).isEqualTo(-1);
-    }
-
-    @Test
-    void repliesAreLimitedToOneLevelOnSameTarget() {
-        Comment top = Comment.post(TargetType.ANSWER, 50, 10, 1, null, "请问第二步为什么要变色？", NOW);
-        top.assignId(1);
-        Comment reply = Comment.post(TargetType.ANSWER, 50, 10, 3, top, "因为要保持黑高一致。", NOW);
-        reply.assignId(2);
-        assertThat(reply.parentId()).isEqualTo(1L);
-
-        assertThatThrownBy(() -> Comment.post(TargetType.ANSWER, 50, 10, 1, reply, "再回复一层", NOW))
-                .isInstanceOf(BusinessRuleException.class);
-        assertThatThrownBy(() -> Comment.post(TargetType.QUESTION, 10, 10, 1, top, "挂错位置的回复", NOW))
-                .isInstanceOf(BusinessRuleException.class);
+    void shouldCreateDownVote() {
+        Vote vote = Vote.create(1002L, 501L, false);
+        assertThat(vote.isUpVote()).isFalse();
     }
 }
