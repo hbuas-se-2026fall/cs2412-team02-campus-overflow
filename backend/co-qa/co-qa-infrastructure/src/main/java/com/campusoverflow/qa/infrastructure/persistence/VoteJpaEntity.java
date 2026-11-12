@@ -1,52 +1,46 @@
 package com.campusoverflow.qa.infrastructure.persistence;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.Instant;
+import jakarta.persistence.*;
 
-/** 唯一约束 uk_vote(voter_id, target_type, target_id) 兜底并发重复投票。 */
 @Entity
 @Table(name = "qa_vote")
 public class VoteJpaEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "voter_id", nullable = false)
-    private long voterId;
-
-    @Column(name = "target_type", nullable = false, length = 16)
+    private Long voterId;
     private String targetType;
+    private Long targetId;
+    private boolean upVote;
 
-    @Column(name = "target_id", nullable = false)
-    private long targetId;
-
-    @Column(nullable = false)
-    private int value;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    protected VoteJpaEntity() {
-    }
-
-    public VoteJpaEntity(long voterId, String targetType, long targetId) {
+    public VoteJpaEntity(Long voterId, String targetType, Long targetId, boolean upVote) {
         this.voterId = voterId;
         this.targetType = targetType;
         this.targetId = targetId;
+        this.upVote = upVote;
     }
 
-    public Long getId() { return id; }
-    public long getVoterId() { return voterId; }
-    public String getTargetType() { return targetType; }
-    public long getTargetId() { return targetId; }
-    public int getValue() { return value; }
-    public void setValue(int value) { this.value = value; }
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public VoteJpaEntity() {}
+
+    // getter
+    public Long getId() {
+        return id;
+    }
+    public Long getVoterId() {
+        return voterId;
+    }
+    public String getTargetType() {
+        return targetType;
+    }
+    public Long getTargetId() {
+        return targetId;
+    }
+    public boolean isUpVote() {
+        return upVote;
+    }
+
+    // setter
+    public void setUpVote(boolean upVote) {
+        this.upVote = upVote;
+    }
 }
