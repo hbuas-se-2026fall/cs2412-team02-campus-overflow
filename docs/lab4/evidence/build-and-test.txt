@@ -1,0 +1,29 @@
+﻿[INFO] Reactor Build Order:
+[INFO] Building CampusOverflow :: Parent 0.1.0-SNAPSHOT                   [1/8]
+[INFO] Building CampusOverflow :: Shared Kernel 0.1.0-SNAPSHOT            [2/8]
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.105 s -- in com.campusoverflow.shared.util.MaskingTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Building CampusOverflow :: Identity 身份与认证 0.1.0-SNAPSHOT           [3/8]
+[INFO] Building Identity 身份与认证 :: api（发布语言） 0.1.0-SNAPSHOT                [4/8]
+[INFO] Building CampusOverflow :: Q&A 问答核心 0.1.0-SNAPSHOT                 [5/8]
+[INFO] Building Q&A 问答核心 :: api（发布语言） 0.1.0-SNAPSHOT                      [6/8]
+[INFO] Building Q&A 问答核心 :: domain（纯 Java） 0.1.0-SNAPSHOT                 [7/8]
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.119 s -- in com.campusoverflow.qa.domain.AnswerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.campusoverflow.qa.domain.QuestionTest$EditingAndDeleting
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.campusoverflow.qa.domain.QuestionTest$Accepting
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.campusoverflow.qa.domain.QuestionTest$Posting
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.049 s -- in com.campusoverflow.qa.domain.QuestionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.campusoverflow.qa.domain.VoteAndCommentTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Building Q&A 问答核心 :: application（用例编排） 0.1.0-SNAPSHOT              [8/8]
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.210 s -- in com.campusoverflow.qa.application.command.AnswerAndVoteServiceTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] CampusOverflow :: Parent ........................... SUCCESS [  0.302 s]
+[INFO] CampusOverflow :: Shared Kernel .................... SUCCESS [  1.648 s]
+[INFO] CampusOverflow :: Identity 身份与认证 ................... SUCCESS [  0.004 s]
+[INFO] Identity 身份与认证 :: api（发布语言） ........................ SUCCESS [  0.038 s]
+[INFO] CampusOverflow :: Q&A 问答核心 ......................... SUCCESS [  0.005 s]
+[INFO] Q&A 问答核心 :: api（发布语言） .............................. SUCCESS [  0.041 s]
+[INFO] Q&A 问答核心 :: domain（纯 Java） ......................... SUCCESS [  1.220 s]
+[INFO] Q&A 问答核心 :: application（用例编排） ...................... SUCCESS [  1.945 s]
+[INFO] BUILD SUCCESS

@@ -1,0 +1,14 @@
+﻿== GET /api/v1/auth/csrf ==
+{"token":"amZ6fc20Ul0ZqIxB7btITD_MCbY-Q1TOF_mnAN0vY3cTti7EXwMcH6zQNG40mugl3ZZ8fAytJI9dJ2HjIsvGObkdVxZ1hRn8","headerName":"X-XSRF-TOKEN"}
+== POST /api/v1/auth/register (user3) ==
+{"id":3} [HTTP 201]
+== POST /api/v1/auth/login ==
+{"id":3,"username":"wanglaoshi","displayName":"王老师","email":"wang@example.com","role":"STUDENT","verified":false,"college":"计算机工程学院","className":"教师","courses":[]} [HTTP 200]
+== POST /api/v1/questions (教师提问) ==
+{"id":2} [HTTP 201]
+== GET /api/v1/questions/2 ==
+{"id":2,"title":"实验四阶段对持久化层有哪些硬性约定？","body":"请说明 ddl-auto、Flyway 迁移目录、软删除字段和乐观锁版本号这四项在项目里的约定与理由。","bodyHtml":"<p>请说明 ddl-auto、Flyway 迁移目录、软删除字段和乐观锁版本号这四项在项目里的约定与理由。</p>\n","tags":["持久化","架构"],"course":null,"author":{"id":3,"displayName":"王老师","role":"STUDENT","verified":false},"score":0,"answerCount":0,"viewCount":0,"acceptedAnswerId":null,"myVote":0,"createdAt":"2026-11-17T07:08:10.723578Z","updatedAt":"2026-11-17T07:08:10.723578Z","permissions":{"canEdit":true,"canDelete":true,"canAccept":true,"canManage":false},"comments":[],"answers":[]} [HTTP 200]
+== MySQL: qa_question ==
+id	author_id	title	score	answer_count	version
+1	1	红黑树插入后如何判断该左旋还是右旋？	-1	1	0
+2	3	实验四阶段对持久化层有哪些硬性约定？	0	0	0
