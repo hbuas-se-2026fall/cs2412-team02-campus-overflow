@@ -6,12 +6,10 @@ import com.campusoverflow.shared.domain.Guard;
 public record MarkdownBody(String value) {
 
     public static MarkdownBody ofQuestion(String raw) {
-        String text = Guard.requireText(raw, 10, 2000, "QA-1002", "问题正文");
-        return new MarkdownBody(text);
+        return new MarkdownBody(Guard.requireText(raw, 10, 30000, "QA-1002", "问题正文"));
     }
 
     public static MarkdownBody ofAnswer(String raw) {
-        String text = Guard.requireText(raw, 5, 3000, "QA-1003", "回答正文");
-        return new MarkdownBody(text);
+        return new MarkdownBody(Guard.requireText(raw, 10, 30000, "QA-1003", "回答正文"));
     }
 }
