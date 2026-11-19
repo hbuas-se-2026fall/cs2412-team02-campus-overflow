@@ -1,9 +1,8 @@
 name: CI
+
 on:
   pull_request:
-    branches: [main, develop]
   push:
-    branches: [main, develop]
 
 env:
   SPRINT_MODULES: "co-shared-kernel,co-identity,co-qa,co-reputation"
@@ -35,7 +34,7 @@ jobs:
           path: |
             backend/**/target/surefire-reports/
 
-  前端构建&类型检查:
+  frontend-check-and-build:
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码
@@ -58,7 +57,7 @@ jobs:
       - name: Vite生产构建
         run: pnpm build
 
-  容器镜像构建:
+  docker-build:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
