@@ -1,6 +1,0 @@
-# pnpm v11+ 配置
-# 1) esbuild 需要执行安装脚本（vite 的依赖）
-onlyBuiltDependencies:
-  - esbuild
-# 2) 运行脚本前不再做一次隐式 install，避免离线/受限网络下的额外等待
-verifyDepsBeforeRun: false
