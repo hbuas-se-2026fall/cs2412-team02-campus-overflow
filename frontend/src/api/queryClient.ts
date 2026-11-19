@@ -1,13 +1,17 @@
-import { Question } from './types';
+import { QueryClient } from '@tanstack/react-query';
 
-export const mockQuestions: Question[] = [
-    {
-        id: 1,
-        title: "怎么写SpringBoot仓储",
-        body: "domain和infrastructure怎么分层？",
-        tags: ["java", "springboot"],
-        score: 0,
-        viewCount: 12,
-        answerCount: 2
-    }
-];
+/** 全局唯一的 QueryClient，供 main.tsx 里的 QueryClientProvider 使用 */
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
+
+export default queryClient;
