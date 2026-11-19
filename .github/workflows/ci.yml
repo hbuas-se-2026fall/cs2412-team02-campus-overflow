@@ -48,14 +48,20 @@ jobs:
       - name: 全局安装pnpm
         run: npm install -g pnpm
 
-      - name: 安装前端依赖(pnpm)
-        run: pnpm install
+      - name: 进入frontend目录，安装前端依赖(pnpm)
+        run: |
+          cd frontend
+          pnpm install
 
       - name: TS全量类型检查（Lab5必须全绿，禁止跳过）
-        run: pnpm typecheck
+        run: |
+          cd frontend
+          pnpm typecheck
 
       - name: Vite生产构建
-        run: pnpm build
+        run: |
+          cd frontend
+          pnpm build
 
   docker-build:
     runs-on: ubuntu-latest
