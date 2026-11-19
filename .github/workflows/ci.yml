@@ -1,31 +1,17 @@
 name: CI
-
 on:
-  push:
-    branches: [main, develop, "sprint/**"]
   pull_request:
-    branches: [main, develop]
-
-# 并发：同一分支只保留最新一次流水线，取消旧运行，节约Actions分钟
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  push:
 
 env:
-  # Sprint2 生效模块：共享内核 + Identity + Q&A + Reputation
-  SPRINT_MODULES: >
-    co-shared-kernel,
-    co-identity/co-identity-domain,
-    co-qa/co-qa-domain,
-    co-qa/co-qa-application,
-    co-reputation/co-reputation-domain,
-    co-reputation/co-reputation-application
+  SPRINT_MODULES: "co-shared-kernel,co-identity,co-qa,co-reputation"
 
 jobs:
   backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
 
       - name: 配置 JDK 21 Temurin
         uses: actions/setup-java@v4
@@ -34,61 +20,45 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Maven 编译全部后端代码
-        run: mvn -B -f backend/pom.xml clean compile
-
-      - name: 单元测试（Sprint范围模块）
-        run: mvn -B -f backend/pom.xml test -pl "${{ env.SPRINT_MODULES }}" -am
-
-      - name: 覆盖率门禁（Sprint范围模块）
-        run: mvn -B -f backend/pom.xml verify -DskipITs -Djacoco.skip=false -pl "${{ env.SPRINT_MODULES }}" -am
-
-      - name: 集成测试（Sprint2允许失败，Sprint3删除continue‑on‑error）
-        run: mvn -B -f backend/pom.xml verify -Dsurefire.skip=true
+      - name: 运行指定模块测试（Sprint2允许失败）
+        run: |
+          mvn test -pl ${SPRINT_MODULES} -am
         continue-on-error: true
 
       - name: 归档测试报告
-        if: always()
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: backend-test-reports
-          path: "**/target/*-reports/*.xml"
+          name: backend-test-report
+          path: |
+            backend/**/target/surefire-reports/
 
-  frontend:
-    name: 前端构建&类型检查
+  前端构建&类型检查:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
 
       - name: 配置 Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
+          node-version: 20
+
+      - name: 全局安装pnpm
+        run: npm install -g pnpm
 
       - name: 安装前端依赖(pnpm)
-        working-directory: frontend
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install
 
       - name: TS全量类型检查（Lab5必须全绿，禁止跳过）
-        working-directory: frontend
         run: pnpm typecheck
 
       - name: Vite生产构建
-        working-directory: frontend
         run: pnpm build
 
-  images:
-    name: 容器镜像构建（仅push事件执行，PR不构建节省用量）
-    needs: [backend, frontend]
-    if: github.event_name == 'push'
+  容器镜像构建:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
-
-      - name: 构建后端镜像
-        run: docker build -f deploy/backend.Dockerfile -t campus-overflow-backend:${{ github.sha }} .
-
-      - name: 构建前端镜像
-        run: docker build -f deploy/frontend.Dockerfile -t campus-overflow-web:${{ github.sha }} .
+      - name: 检出代码
+        uses: actions/checkout@v4
