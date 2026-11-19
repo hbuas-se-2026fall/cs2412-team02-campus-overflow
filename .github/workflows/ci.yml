@@ -1,7 +1,9 @@
 name: CI
 on:
   pull_request:
+    branches: [main, develop]
   push:
+    branches: [main, develop]
 
 env:
   SPRINT_MODULES: "co-shared-kernel,co-identity,co-qa,co-reputation"
