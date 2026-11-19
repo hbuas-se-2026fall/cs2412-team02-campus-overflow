@@ -9,9 +9,11 @@ React 18 + TypeScript 5 + Vite 5 的 TypeScript 严格模式工程。本目录�
 
 | 工具 | 版本 | 说明 |
 | --- | --- | --- |
-| Node.js | >= 20（建议 22 LTS） | `package.json` 的 `engines` 已约束 |
-| pnpm | >= 9 | 团队统一用 pnpm，不要混用 npm 生成 `package-lock.json` |
+| Node.js | **v20.19.0**（已验证） | `package.json` 的 `engines` 约束 `>=20`；团队统一 20 LTS，别用 24 生成锁文件 |
+| pnpm | **9.15.0**（已验证） | `package.json` 的 `packageManager` 已锁定，装了 corepack 会自动切到该版本 |
 | 后端 | 本机 `localhost:8080` | `backend/co-bootstrap` 启动后提供 `/api/**` |
+
+> 不要用 npm 安装，会生成 `package-lock.json` 并和 `pnpm-lock.yaml` 打架（CI 里的 npm 只是为了跑构建，不参与依赖锁定）。
 
 ## 2. 启动
 
@@ -20,6 +22,8 @@ cd frontend
 pnpm install          # 首次或依赖变更后执行
 pnpm dev              # http://localhost:5173
 ```
+
+`frontend/.npmrc` 里固定了 `node-linker=hoisted`：Windows 下 pnpm 默认的软链布局会让 Node 解析不到 vite 的传递依赖，报 `Cannot find package 'esbuild'`，改成扁平布局后 Windows / macOS / Linux 一致。
 
 开发服务器把 `/api` 代理到 `http://localhost:8080`（见 `vite.config.ts`）。
 **必须走代理而不是直连 8080**：后端用 Cookie 会话 + CSRF 双提交，跨源会拿不到 `XSRF-TOKEN`。
@@ -100,13 +104,24 @@ git pull origin develop
 git checkout -b feature/lab5-xxx
 ```
 
-## 7. 当前状态（成员A 交付）
+## 7. 常见问题
+
+| 现象 | 原因与处理 |
+| --- | --- |
+| `Cannot find package 'esbuild'` | pnpm 隔离布局 + Windows junction 导致，本仓库已在 `.npmrc` 用 `node-linker=hoisted` 规避；若仍出现，删掉 `node_modules` 重新 `pnpm install` |
+| pnpm 提示 `Ignored build scripts: esbuild` | pnpm 10+ 默认拦截依赖脚本，执行 `pnpm approve-builds` 勾选 esbuild（或把 pnpm 切到 9.15.0） |
+| `corepack prepare` 报 `EPERM ... \AppData\Local\node\corepack` | 受限环境写不了用户目录，设置 `COREPACK_HOME` 到项目内目录再执行 |
+| `pnpm dev` 首次请求转圈十几秒 | Vite 首次预构建依赖（optimizeDeps），第二次起就快了 |
+
+## 8. 当前状态（成员A 交付）
+
 
 - [x] Vite 5 + React 18 + TS 5，`strict` 与 `noUncheckedIndexedAccess` 全开
 - [x] `@/` 别名（tsconfig + vite 双处）
 - [x] 目录骨架：`pages/`、`features/`、`api/`、`shared/`
 - [x] API 契约 `src/api/contracts.d.ts`（覆盖认证、问答、投票、评论、检索、声誉、通知）
 - [x] `/api` 代理与 `5173` 固定端口
+- [x] 环境已验证：Node **v20.19.0** + pnpm **9.15.0**，`pnpm typecheck` / `pnpm build` / `pnpm dev` 全部通过
 - [ ] 代码质量工具链（成员B）
 - [ ] axios + TanStack Query（成员C）
 - [ ] AppShell 与三个页面（成员D）—— 目前 `src/pages/` 里是课程模板自带的示例页面，D 的 PR 会替换
