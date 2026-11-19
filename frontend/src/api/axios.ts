@@ -12,25 +12,10 @@ export class ApiError extends Error {
   }
 }
 
+/** 读取 Cookie 值：按 name= 截取，避免 token 内含 '=' 时被截断 */
 function cookie(name: string): string | undefined {
-  return document.cookie
-    .split('; ')
-    .find((c) => c.startsWith(`${name}=`))
-    ?.split('=')[1];
-}
-
-/** 全局 loading 计数，UI 可订阅（不引第三方状态库） */
-let pending = 0;
-const listeners = new Set<(loading: boolean) => void>();
-
-function notify() {
-  const loading = pending > 0;
-  listeners.forEach((fn) => fn(loading));
-}
-
-export function subscribeLoading(fn: (loading: boolean) => void): () => void {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
+  const raw = document.cookie.split('; ').find((c) => c.startsWith(`${name}=`));
+  return raw ? raw.slice(name.length + 1) : undefined;
 }
 
 export const api = axios.create({
@@ -39,36 +24,31 @@ export const api = axios.create({
   withCredentials: true, // 会话 Cookie 同源携带
 });
 
-// 请求拦截：CSRF 双提交 + loading 计数
+// 请求拦截：CSRF 双提交（GET /v1/auth/csrf → Cookie XSRF-TOKEN → 请求头 X-XSRF-TOKEN）
 api.interceptors.request.use(async (config) => {
   const method = (config.method ?? 'get').toUpperCase();
   if (method !== 'GET') {
     let token = cookie('XSRF-TOKEN');
     if (!token) {
-      // 首次写请求前先取一次 CSRF 令牌
+      // 首次写请求前先取一次令牌
       await api.get('/v1/auth/csrf');
       token = cookie('XSRF-TOKEN');
     }
-    if (token) config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
+    if (token) {
+      try {
+        config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
+      } catch {
+        config.headers['X-XSRF-TOKEN'] = token;
+      }
+    }
   }
-  if (config.data !== undefined && !config.headers['Content-Type']) {
-    config.headers['Content-Type'] = 'application/json';
-  }
-  pending += 1;
-  notify();
   return config;
 });
 
-// 响应拦截：统一错误捕获 + loading 释放
+// 响应拦截：把 RFC 9457 的 code/detail 统一转成 ApiError
 api.interceptors.response.use(
-  (res) => {
-    pending = Math.max(0, pending - 1);
-    notify();
-    return res;
-  },
+  (res) => res,
   (err: AxiosError<ProblemDetail>) => {
-    pending = Math.max(0, pending - 1);
-    notify();
     if (err.response) {
       const data = err.response.data;
       throw new ApiError(
