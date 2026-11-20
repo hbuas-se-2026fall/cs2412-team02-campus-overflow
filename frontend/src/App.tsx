@@ -70,4 +70,6 @@ export function App() {
     </BrowserRouter>
   );
 }
-const num: string = 999;
+let a;
+console.log(a)
+
