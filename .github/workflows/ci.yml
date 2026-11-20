@@ -1,9 +1,7 @@
 name: CI
-
 on:
   pull_request:
   push:
-
 env:
   SPRINT_MODULES: "co-shared-kernel,co-identity,co-qa,co-reputation"
 
@@ -52,6 +50,11 @@ jobs:
         run: |
           cd frontend
           pnpm install
+
+      - name: ESLint代码规范检查（Lab5强制）
+        run: |
+          cd frontend
+          pnpm lint
 
       - name: TS全量类型检查（Lab5必须全绿，禁止跳过）
         run: |

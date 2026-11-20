@@ -70,7 +70,8 @@ export function App() {
     </BrowserRouter>
   );
 }
-const testNum: number = "abc";
+const test: number = "hello";
+
 
 
 

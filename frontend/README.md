@@ -125,3 +125,7 @@ git checkout -b feature/lab5-xxx
 - [ ] 代码质量工具链（成员B）
 - [ ] axios + TanStack Query（成员C）
 - [ ] AppShell 与三个页面（成员D）—— 目前 `src/pages/` 里是课程模板自带的示例页面，D 的 PR 会替换
+### 前置依赖
+拉取代码后，**必须先执行**
+```bash
+pnpm install
