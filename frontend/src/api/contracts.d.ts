@@ -302,7 +302,10 @@ export interface ApiContract {
   'POST /v1/auth/logout': { request: void; response: void };
   'GET /v1/auth/me': { request: void; response: Me };
 
-  'GET /v1/questions': { request: { page?: number; size?: number; courseId?: number }; response: Page<QuestionSummary> };
+  'GET /v1/questions': {
+    request: { page?: number; size?: number; courseId?: number };
+    response: Page<QuestionSummary>;
+  };
   'POST /v1/questions': { request: CreateQuestionRequest; response: CreatedResponse };
   'GET /v1/questions/{id}': { request: void; response: QuestionDetail };
   'PUT /v1/questions/{id}': { request: UpdateQuestionRequest; response: void };
