@@ -1,7 +1,2 @@
 #!/usr/bin/env sh
-cd frontend
-pnpm lint
-if [ $? -ne 0 ]; then
-  echo "❌ ESLint 检测不通过，存在 Error，禁止提交！"
-  exit 1
-fi
+npx lint-staged
