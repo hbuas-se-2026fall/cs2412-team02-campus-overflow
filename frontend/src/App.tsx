@@ -71,5 +71,5 @@ export function App() {
   );
 }
 let a;
-a = 1
+
 
