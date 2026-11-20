@@ -39,8 +39,13 @@ public class Answer {
     }
 
     public static Answer submit(Question question, long authorId, MarkdownBody body, Instant now) {
-        // TODO(S2)：实现 Answer.submit——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.submit 尚未实现");
+        Objects.requireNonNull(question, "question");
+        question.ensureOpenForAnswers();
+        if (question.id() == null) {
+            throw new BusinessRuleException("QA-2007", "问题尚未持久化，不能提交回答");
+        }
+        return new Answer(null, question.id(), authorId, Objects.requireNonNull(body, "body"),
+                0, null, now, now, null, 0);
     }
 
     public static Answer reconstitute(Long id, long questionId, long authorId, MarkdownBody body, int score,
@@ -50,25 +55,43 @@ public class Answer {
     }
 
     public void edit(Actor actor, boolean actorManagesCourse, MarkdownBody newBody, Instant now) {
-        // TODO(S2)：实现 Answer.edit——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.edit 尚未实现");
+        ensureNotDeleted();
+        if (!actorManagesCourse && (actor == null || !actor.is(authorId))) {
+            throw new ForbiddenException("QA-2008", "只有回答者或课程管理者可以修改回答");
+        }
+        this.body = Objects.requireNonNull(newBody, "newBody");
+        this.updatedAt = now;
     }
 
     /** 教师认证：课程教师/助教为优质回答打上“教师认证”标记。 */
     public void endorse(Actor actor, boolean actorManagesCourse) {
-        // TODO(S2)：实现 Answer.endorse——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.endorse 尚未实现");
+        ensureNotDeleted();
+        if (!actorManagesCourse) {
+            throw new ForbiddenException("QA-2009", "只有课程教师或助教可以认证回答");
+        }
+        if (endorsedBy != null) {
+            throw new ConflictException("QA-2010", "该回答已被认证，不能重复认证");
+        }
+        this.endorsedBy = actor.userId();
     }
 
     /** 被采纳的回答不能由回答者本人删除（避免“先骗采纳再删除”），课程管理者可删除。 */
     public void softDelete(Actor actor, boolean actorManagesCourse, boolean accepted, Instant now) {
-        // TODO(S2)：实现 Answer.softDelete——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.softDelete 尚未实现");
+        ensureNotDeleted();
+        if (accepted && !actorManagesCourse) {
+            throw new BusinessRuleException("QA-2011", "被采纳的回答不能由作者本人删除");
+        }
+        if (!actorManagesCourse && (actor == null || !actor.is(authorId))) {
+            throw new ForbiddenException("QA-2012", "无权删除他人的回答");
+        }
+        this.deletedAt = now;
+        this.updatedAt = now;
     }
 
     private void ensureNotDeleted() {
-        // TODO(S2)：实现 Answer.ensureNotDeleted——参考领域单元测试与 arc42 文档中的业务规则
-        throw new UnsupportedOperationException("TODO(S2)：Answer.ensureNotDeleted 尚未实现");
+        if (isDeleted()) {
+            throw new BusinessRuleException("QA-2013", "回答已删除，不能再被操作");
+        }
     }
 
     public boolean isDeleted() {

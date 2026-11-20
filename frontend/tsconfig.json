@@ -5,12 +5,27 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
+    "types": ["vite/client", "node"],
+
+    /* 严格模式：Lab5 要求 strict + noUncheckedIndexedAccess，禁止 any 逃逸 */
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
     "skipLibCheck": true,
     "isolatedModules": true,
-    "noEmit": true
+    "resolveJsonModule": true,
+    "noEmit": true,
+
+    /* 路径别名：@/xxx → src/xxx（与 vite.config.ts 的 resolve.alias 保持一致） */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "vite.config.ts"]
 }
