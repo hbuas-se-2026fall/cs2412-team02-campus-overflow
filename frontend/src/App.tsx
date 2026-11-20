@@ -71,5 +71,5 @@ export function App() {
   );
 }
 let a;
-console.log(a)
+a = 1
 
