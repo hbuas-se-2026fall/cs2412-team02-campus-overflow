@@ -44,12 +44,14 @@ frontend/
 │  ├─ api/            # 成员C：axios 实例、拦截器、请求函数
 │  │  └─ contracts.d.ts   # 成员A：接口入参/出参契约（本文件是“唯一事实来源”）
 │  ├─ features/       # 按业务特性组织：features/question/、features/auth/ ...
-│  │  ├─ components/  #   该特性私有组件
-│  │  └─ hooks/       #   该特性的数据 hooks（useQuestionList 等）
-│  ├─ pages/          # 成员D：路由级页面（一个页面一个文件）
-│  ├─ shared/         # 跨特性复用：shared/ui（通用组件）、shared/lib（工具）、shared/hooks
-│  ├─ App.tsx         # 布局与路由装配
-│  └─ main.tsx        # 入口
+│  │  └─ question/    #   问答特性
+│  │     ├─ api/      #     questionApi（当前为 mock 实现，成员C 接真实接口只改这里）
+│  │     ├─ components/  #   该特性私有组件：TagList、AnswerList
+│  │     └─ hooks/    #   该特性的数据 hooks：useQuestionList、useQuestionDetail、useCreateQuestion
+│  ├─ pages/          # 成员D：路由级页面（列表 / 新建 / 详情，一个页面一个文件）
+│  ├─ shared/         # 跨特性复用：shared/ui（AppShell）、shared/lib（工具）、shared/hooks
+│  ├─ App.tsx         # 路由装配 + QueryClientProvider
+│  └─ main.tsx        # 入口（ConfigProvider + antd App + BrowserRouter）
 ├─ public/
 ├─ index.html
 ├─ tsconfig.json      # strict + noUncheckedIndexedAccess + @/ 别名
@@ -113,7 +115,7 @@ git checkout -b feature/lab5-xxx
 | `corepack prepare` 报 `EPERM ... \AppData\Local\node\corepack` | 受限环境写不了用户目录，设置 `COREPACK_HOME` 到项目内目录再执行 |
 | `pnpm dev` 首次请求转圈十几秒 | Vite 首次预构建依赖（optimizeDeps），第二次起就快了 |
 
-## 8. 当前状态（成员A 交付）
+## 8. 当前状态
 
 
 - [x] Vite 5 + React 18 + TS 5，`strict` 与 `noUncheckedIndexedAccess` 全开
@@ -124,4 +126,17 @@ git checkout -b feature/lab5-xxx
 - [x] 环境已验证：Node **v20.19.0** + pnpm **9.15.0**，`pnpm typecheck` / `pnpm build` / `pnpm dev` 全部通过
 - [ ] 代码质量工具链（成员B）
 - [ ] axios + TanStack Query（成员C）
-- [ ] AppShell 与三个页面（成员D）—— 目前 `src/pages/` 里是课程模板自带的示例页面，D 的 PR 会替换
+- [x] AppShell 布局与三个页面（成员D）—— 路由 `/questions`、`/questions/new`、`/questions/:id`
+
+## 9. 成员D 交付说明（页面与路由）
+
+| 路由 | 页面 | 数据来源 |
+| --- | --- | --- |
+| `/questions` | `QuestionListPage` | `useQuestionList`（分页 + 关键词 + 标签筛选）、`usePopularTags` |
+| `/questions/new` | `NewQuestionPage` | `useCreateQuestion`，成功后跳转 `/questions/{id}` |
+| `/questions/:id` | `QuestionDetailPage` | `useQuestionDetail`，含回答列表 |
+
+- 布局：`src/shared/ui/AppShell.tsx`，`Header + Sider + Content(<Outlet/>)`，路由以无路径父路由挂在 AppShell 下。
+- 约定：`pages` 只 import `features/question/hooks` 里的 hooks，不直接调用任何请求实现。
+- 当前数据层是**内存 + localStorage 的 mock**（`features/question/api/questionApi.ts` + `mockQuestions.ts`），刷新页面数据不丢，方便录屏演示。
+- 成员 C 合入 axios 与 TanStack QueryClient 后，只需替换 `features/question/api/` 里的实现（保持函数签名与 `@/api/contracts` 类型一致），页面与 hooks 的调用方无需改动。
