@@ -71,6 +71,7 @@ export function mockFetchDetail(id: number): QuestionDetail {
     acceptedAnswerId: undefined,
     myVote: 0,
     createdAt: item.createdAt,
+    updatedAt: item.createdAt,
     permissions: { canEdit: true, canDelete: true, canAccept: true, canManage: true },
     comments: [],
     answers: [],
