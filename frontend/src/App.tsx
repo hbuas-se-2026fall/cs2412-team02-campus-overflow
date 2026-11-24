@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { APP_NAME } from '@/shared/lib/app';
 import { AuthProvider, useAuth } from './auth';
 import { api } from './api';
 import { QuestionListPage } from './pages/QuestionListPage';
@@ -24,7 +25,7 @@ function Header() {
 
   return (
     <header className="topbar">
-      <Link className="brand" to="/">CampusOverflow</Link>
+      <Link className="brand" to="/">{APP_NAME}</Link>
       <nav>
         <Link to="/">问题</Link>
         <Link to="/leaderboard">排行榜</Link>

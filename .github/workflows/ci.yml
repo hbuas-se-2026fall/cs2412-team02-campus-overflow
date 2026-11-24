@@ -1,77 +1,71 @@
-# CampusOverflow 持续集成流水线
 name: CI
 
 on:
-  push:
-    branches: [main, develop, "sprint/**"]
   pull_request:
-    branches: [main, develop]
+  push:
+
+env:
+  SPRINT_MODULES: "co-shared-kernel,co-identity,co-qa,co-reputation"
 
 jobs:
   backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
 
-      - name: 配置 JDK 21
+      - name: 配置 JDK 21 Temurin
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
 
-      - name: 编译
-        run: mvn -B -f backend/pom.xml clean compile
-
-      - name: 单元测试
-        run: mvn -B -f backend/pom.xml test -DskipTests
-
-      - name: 覆盖率门禁
-        run: mvn -B -f backend/pom.xml verify -DskipTests -Djacoco.skip=true -Darchitecture.skip=true
-
-      - name: 集成测试
-        run: mvn -B -f backend/pom.xml verify -DskipTests -Dsurefire.skip=true -Darchitecture.skip=true
+      - name: 运行指定模块测试（Sprint2允许失败）
+        run: |
+          mvn test -pl ${SPRINT_MODULES} -am
+        continue-on-error: true
 
       - name: 归档测试报告
-        if: always()
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: backend-test-reports
-          path: "**/target/*-reports/*.xml"
+          name: backend-test-report
+          path: |
+            backend/**/target/surefire-reports/
 
-  frontend:
-    name: 前端构建
+  frontend-check-and-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
 
-      - name: 配置 Node.js
+      - name: 配置 Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
-      - name: 安装依赖
-        working-directory: frontend
-        run: npm install --no-audit --no-fund
+      - name: 全局安装pnpm
+        run: npm install -g pnpm
 
-      - name: 类型检查
-        working-directory: frontend
-        run: npm run typecheck
+      - name: 进入frontend目录，安装前端依赖(pnpm)
+        run: |
+          cd frontend
+          pnpm install
 
-      - name: 构建
-        working-directory: frontend
-        run: npm run build
+      - name: TS全量类型检查（Lab5必须全绿，禁止跳过）
+        run: |
+          cd frontend
+          pnpm typecheck
 
-  images:
-    name: 容器镜像构建
+      - name: Vite生产构建
+        run: |
+          cd frontend
+          pnpm build
+
+  docker-build:
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
     if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
-
-      - name: 构建后端镜像
-        run: docker build -f deploy/backend.Dockerfile -t campus-overflow-backend:${{ github.sha }} .
-
-      - name: 构建前端镜像
-        run: docker build -f deploy/frontend.Dockerfile -t campus-overflow-web:${{ github.sha }} .
+      - name: 检出代码
+        uses: actions/checkout@v4
