@@ -1,0 +1,16 @@
+@host = http://localhost:8081/api/v1
+
+### 1. 关键词搜索（默认按相关度）
+GET {{host}}/search/questions?q=%E7%BA%A2%E9%BB%91%E6%A0%91&page=1&size=10
+
+### 2. 标签 + 只看未回答
+GET {{host}}/search/questions?tag=algorithm&unanswered=true&sort=newest
+
+### 3. 课程 + 悬赏 + 热榜排序
+GET {{host}}/search/questions?courseId=1&bounty=true&sort=hot
+
+### 4. 相关问题（Jaccard 相似度，默认 5 条）
+GET {{host}}/questions/1/related?limit=5
+
+### 5. 单字符关键词应被拒（DIS-1001）
+GET {{host}}/search/questions?q=%E6%A0%91
