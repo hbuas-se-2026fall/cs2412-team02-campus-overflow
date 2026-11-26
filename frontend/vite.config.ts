@@ -2,9 +2,8 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Lab5 成员A：工程骨架配置
-// - @/ 指向 src/，与 tsconfig.json 的 paths 保持一致
-// - 开发期把 /api 代理到后端 8080，保证 Cookie 会话与 CSRF 双提交同源
+// - @/ 指向 src/
+// - 开发期把 /api 代理到后端 8081，保证 Cookie 会话与 CSRF 双提交同源
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -17,7 +16,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8081',
         changeOrigin: true,
       },
     },
